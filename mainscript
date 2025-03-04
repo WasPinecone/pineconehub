@@ -127,6 +127,7 @@ local isJumping = false
 
 local function toggleFlight()
     debugPrint("Flight button clicked.")
+    
     if not isFlying then
         -- Create a platform under the user
         debugPrint("Creating flight platform.")
@@ -138,33 +139,39 @@ local function toggleFlight()
         platform.BrickColor = BrickColor.Green()  -- Set color to green
         platform.Parent = workspace
 
-        -- Monitor jumping state to move platform only while jumping
-        game:GetService("RunService").Heartbeat:Connect(function()
+        -- Start a loop to track player position while flying
+        local platformFollowConnection
+        platformFollowConnection = game:GetService("RunService").Heartbeat:Connect(function()
             if player.Character and player.Character:FindFirstChild("Humanoid") then
                 local humanoid = player.Character.Humanoid
-                -- Ensure the platform follows the player only if they're jumping or flying
+                
+                -- If the player is jumping or in the air, platform should follow the player
                 if humanoid:GetState() == Enum.HumanoidStateType.Physics and humanoid.JumpHeight > 0 then
                     if not isJumping then
                         isJumping = true
-                        -- Platform starts following the player
-                        debugPrint("Player is jumping, platform follows.")
+                        debugPrint("Player is jumping, platform will follow.")
                     end
                     -- Keep the platform under the player while jumping
                     platform.Position = player.Character.HumanoidRootPart.Position - Vector3.new(0, 5, 0)
                 elseif humanoid:GetState() ~= Enum.HumanoidStateType.Physics or humanoid.JumpHeight == 0 then
                     if isJumping then
                         isJumping = false
-                        debugPrint("Player stopped jumping, platform stops.")
+                        debugPrint("Player stopped jumping, platform stops following.")
                     end
                 end
             end
         end)
 
     else
-        -- Remove the platform
+        -- Remove the platform and disconnect the loop
         debugPrint("Removing flight platform.")
         if platform then
             platform:Destroy()
+        end
+        
+        -- Disconnect the loop for platform movement
+        if platformFollowConnection then
+            platformFollowConnection:Disconnect()
         end
     end
     isFlying = not isFlying  -- Toggle the flying state
