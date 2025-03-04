@@ -212,8 +212,8 @@ end
 -- Function to kill the player
 local function killPlayer()
     debugPrint("Kill Player button clicked.")
-    if player.Character and player.Character:FindFirstChildOfClass("Humanoid") then
-        player.Character.Humanoid.Health = 0  -- Instantly set health to 0
+    if player.Character then
+        player.Character:BreakJoints()  -- Forcefully kills the player
     end
 end
 
