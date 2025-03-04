@@ -209,6 +209,14 @@ local function teleportToRandomPlayer()
     end
 end
 
+-- Function to kill the player
+local function killPlayer()
+    debugPrint("Kill Player button clicked.")
+    if player.Character and player.Character:FindFirstChildOfClass("Humanoid") then
+        player.Character.Humanoid.Health = 0  -- Instantly set health to 0
+    end
+end
+
 local function teleportToClosestPlayer()
     debugPrint("Teleporting to closest player.")
     local closestPlayer = nil
@@ -265,6 +273,10 @@ button.MouseButton1Click:Connect(function()
 
         -- Create the "GotoClosest" button (teleports to closest player)
         createButton(7, "GotoClosest", teleportToClosestPlayer)
+
+        -- Create the "Kill Player" button (instantly resets the player)
+        createButton(8, "Kill Player", killPlayer)
+
     end
 end)
 
