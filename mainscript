@@ -103,23 +103,6 @@ local function toggleSlowWalk()
     isSlowWalking = not isSlowWalking  -- Toggle the slow walking state
 end
 
--- Edit: Gravity manipulation for jump height control
-local normalGravity = 196.2  -- Default gravity value
-local lowGravity = 50  -- Gravity value for low jump
-local highGravity = 300  -- Gravity value for high jump
-
-local function toggleHighJump()
-    debugPrint("High Jump button clicked.")
-    -- Set the gravity to a higher value
-    workspace.Gravity = highGravity
-end
-
-local function toggleLowJump()
-    debugPrint("Low Jump button clicked.")
-    -- Set the gravity to a lower value
-    workspace.Gravity = lowGravity
-end
-
 -- Flight functionality
 local isFlying = false
 
@@ -168,14 +151,8 @@ button.MouseButton1Click:Connect(function()
         -- Create the "Slow Walk" button
         createButton(2, "Slow Walk", toggleSlowWalk)
 
-        -- Create the "High Jump" button
-        createButton(3, "High Jump", toggleHighJump)
-
-        -- Create the "Low Jump" button
-        createButton(4, "Low Jump", toggleLowJump)
-
         -- Create the "Flight" button
-        createButton(5, "Flight", toggleFlight)
+        createButton(3, "Flight", toggleFlight)
     end
 end)
 
