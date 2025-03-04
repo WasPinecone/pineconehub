@@ -103,28 +103,65 @@ local function toggleSlowWalk()
     isSlowWalking = not isSlowWalking  -- Toggle the slow walking state
 end
 
--- Flight functionality
-local isFlying = false
+-- Hover functionality (renamed Flight to Hover)
+local isHovering = false
 
-local function toggleFlight()
-    debugPrint("Flight button clicked.")
-    if not isFlying then
-        -- Enable flight
-        debugPrint("Enabling flight.")
+local function toggleHover()
+    debugPrint("Hover button clicked.")
+    if not isHovering then
+        -- Enable hover
+        debugPrint("Enabling hover.")
         local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
         if humanoid then
-            humanoid.PlatformStand = true  -- Disable the humanoid's collision for flight
-            -- You can implement custom flight controls here if needed, like moving the player up/down
-            player.Character.HumanoidRootPart.Anchored = true
-            player.Character:MoveTo(player.Character.HumanoidRootPart.Position + Vector3.new(0, 50, 0))  -- Move the player upwards
+            humanoid.PlatformStand = true  -- Disable the humanoid's collision for hover
+            player.Character.HumanoidRootPart.Anchored = true  -- Anchor the character
         end
     else
-        -- Disable flight
-        debugPrint("Disabling flight.")
+        -- Disable hover
+        debugPrint("Disabling hover.")
         local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
         if humanoid then
             humanoid.PlatformStand = false  -- Re-enable collision
             player.Character.HumanoidRootPart.Anchored = false  -- Unanchor the character
+        end
+    end
+    isHovering = not isHovering  -- Toggle the hovering state
+end
+
+-- Flight functionality (new)
+local isFlying = false
+local platform
+
+local function toggleFlight()
+    debugPrint("Flight button clicked.")
+    if not isFlying then
+        -- Create a platform under the user
+        debugPrint("Creating flight platform.")
+        platform = Instance.new("Part")
+        platform.Size = Vector3.new(10, 1, 10)  -- Platform size
+        platform.Position = player.Character.HumanoidRootPart.Position - Vector3.new(0, 5, 0)  -- Place below the character
+        platform.Anchored = true
+        platform.CanCollide = true
+        platform.BrickColor = BrickColor.Green()  -- Set color to green
+        platform.Parent = workspace
+
+        -- Make the platform move upward when the player jumps
+        local connection
+        connection = player.Character.Humanoid.Jumping:Connect(function()
+            if platform then
+                platform.Position = platform.Position + Vector3.new(0, 5, 0)  -- Move the platform up
+            end
+        end)
+
+        -- Disconnect the connection when flight is toggled off
+        platform.Destroying:Connect(function()
+            connection:Disconnect()
+        end)
+    else
+        -- Remove the platform
+        debugPrint("Removing flight platform.")
+        if platform then
+            platform:Destroy()
         end
     end
     isFlying = not isFlying  -- Toggle the flying state
@@ -151,8 +188,11 @@ button.MouseButton1Click:Connect(function()
         -- Create the "Slow Walk" button
         createButton(2, "Slow Walk", toggleSlowWalk)
 
-        -- Create the "Flight" button
-        createButton(3, "Flight", toggleFlight)
+        -- Create the "Hover" button (renamed Flight)
+        createButton(3, "Hover", toggleHover)
+
+        -- Create the "Flight" button (new)
+        createButton(4, "Flight", toggleFlight)
     end
 end)
 
