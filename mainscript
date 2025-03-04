@@ -111,7 +111,7 @@ local function toggleHighJump()
     debugPrint("High Jump button clicked.")
     if player.Character and player.Character:FindFirstChildOfClass("Humanoid") then
         local humanoid = player.Character.Humanoid
-        humanoid.JumpHeight = highJumpHeight
+        humanoid.JumpHeight = highJumpHeight  -- Set the high jump height
     end
 end
 
@@ -122,12 +122,14 @@ local function toggleLowJump()
     debugPrint("Low Jump button clicked.")
     if player.Character and player.Character:FindFirstChildOfClass("Humanoid") then
         local humanoid = player.Character.Humanoid
-        humanoid.JumpHeight = lowJumpHeight
+        humanoid.JumpHeight = lowJumpHeight  -- Set the low jump height
     end
 end
 
 -- Flight functionality
 local isFlying = false
+local flightSpeed = 50  -- Adjust as needed for flight speed
+local flightBodyVelocity = nil  -- To store the BodyVelocity object during flight
 
 local function toggleFlight()
     debugPrint("Flight button clicked.")
@@ -137,9 +139,12 @@ local function toggleFlight()
         local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
         if humanoid then
             humanoid.PlatformStand = true  -- Disable the humanoid's collision for flight
-            -- You can implement custom flight controls here if needed, like moving the player up/down
-            player.Character.HumanoidRootPart.Anchored = true
-            player.Character:MoveTo(player.Character.HumanoidRootPart.Position + Vector3.new(0, 50, 0))  -- Move the player upwards
+            -- Add a BodyVelocity to control flight speed
+            flightBodyVelocity = Instance.new("BodyVelocity")
+            flightBodyVelocity.MaxForce = Vector3.new(100000, 100000, 100000)  -- High force to allow movement
+            flightBodyVelocity.Velocity = Vector3.new(0, flightSpeed, 0)  -- Set initial upward velocity
+            flightBodyVelocity.Parent = player.Character.HumanoidRootPart
+            player.Character.HumanoidRootPart.Anchored = false  -- Unanchor the character
         end
     else
         -- Disable flight
@@ -147,6 +152,10 @@ local function toggleFlight()
         local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
         if humanoid then
             humanoid.PlatformStand = false  -- Re-enable collision
+            if flightBodyVelocity then
+                flightBodyVelocity:Destroy()  -- Remove the BodyVelocity when flight is disabled
+                flightBodyVelocity = nil
+            end
             player.Character.HumanoidRootPart.Anchored = false  -- Unanchor the character
         end
     end
