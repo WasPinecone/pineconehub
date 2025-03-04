@@ -103,33 +103,21 @@ local function toggleSlowWalk()
     isSlowWalking = not isSlowWalking  -- Toggle the slow walking state
 end
 
--- Edit: High Jump functionality fixed (correctly adjusts humanoid's jump height)
-local normalJumpHeight = 50
-local highJumpHeight = 150
+-- Edit: Gravity manipulation for jump height control
+local normalGravity = 196.2  -- Default gravity value
+local lowGravity = 50  -- Gravity value for low jump
+local highGravity = 300  -- Gravity value for high jump
 
 local function toggleHighJump()
     debugPrint("High Jump button clicked.")
-    if player.Character and player.Character:FindFirstChildOfClass("Humanoid") then
-        local humanoid = player.Character.Humanoid
-        humanoid.JumpHeight = highJumpHeight
-        debugPrint("Jump height set to high.")
-    else
-        debugPrint("Humanoid not found.")
-    end
+    -- Set the gravity to a higher value
+    workspace.Gravity = highGravity
 end
-
--- Edit: Low Jump functionality fixed (correctly adjusts humanoid's jump height)
-local lowJumpHeight = 20
 
 local function toggleLowJump()
     debugPrint("Low Jump button clicked.")
-    if player.Character and player.Character:FindFirstChildOfClass("Humanoid") then
-        local humanoid = player.Character.Humanoid
-        humanoid.JumpHeight = lowJumpHeight
-        debugPrint("Jump height set to low.")
-    else
-        debugPrint("Humanoid not found.")
-    end
+    -- Set the gravity to a lower value
+    workspace.Gravity = lowGravity
 end
 
 -- Flight functionality
