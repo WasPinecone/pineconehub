@@ -103,7 +103,7 @@ local function toggleSlowWalk()
     isSlowWalking = not isSlowWalking  -- Toggle the slow walking state
 end
 
--- Edit: High Jump functionality fixed
+-- Edit: High Jump functionality fixed (correctly adjusts humanoid's jump height)
 local normalJumpHeight = 50
 local highJumpHeight = 150
 
@@ -118,7 +118,7 @@ local function toggleHighJump()
     end
 end
 
--- Edit: Low Jump functionality fixed
+-- Edit: Low Jump functionality fixed (correctly adjusts humanoid's jump height)
 local lowJumpHeight = 20
 
 local function toggleLowJump()
