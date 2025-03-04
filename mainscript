@@ -103,32 +103,22 @@ local function toggleSlowWalk()
     isSlowWalking = not isSlowWalking  -- Toggle the slow walking state
 end
 
--- Hover functionality (renamed Flight to Hover)
+-- Hover functionality (teleport the player upwards)
 local isHovering = false
 
 local function toggleHover()
     debugPrint("Hover button clicked.")
     if not isHovering then
-        -- Enable hover
-        debugPrint("Enabling hover.")
-        local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            humanoid.PlatformStand = true  -- Disable the humanoid's collision for hover
-            player.Character.HumanoidRootPart.Anchored = true  -- Anchor the character
-        end
-    else
-        -- Disable hover
-        debugPrint("Disabling hover.")
-        local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            humanoid.PlatformStand = false  -- Re-enable collision
-            player.Character.HumanoidRootPart.Anchored = false  -- Unanchor the character
+        -- Teleport the player upwards
+        debugPrint("Teleporting player upwards.")
+        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            player.Character.HumanoidRootPart.CFrame = player.Character.HumanoidRootPart.CFrame + Vector3.new(0, 10, 0)  -- Move up by 10 studs
         end
     end
     isHovering = not isHovering  -- Toggle the hovering state
 end
 
--- Flight functionality (new)
+-- Flight functionality (platform under the player)
 local isFlying = false
 local platform
 
@@ -145,11 +135,12 @@ local function toggleFlight()
         platform.BrickColor = BrickColor.Green()  -- Set color to green
         platform.Parent = workspace
 
-        -- Make the platform move upward when the player jumps
+        -- Keep the platform under the player, update its position as the player moves
         local connection
-        connection = player.Character.Humanoid.Jumping:Connect(function()
-            if platform then
-                platform.Position = platform.Position + Vector3.new(0, 5, 0)  -- Move the platform up
+        connection = game:GetService("RunService").Heartbeat:Connect(function()
+            if platform and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                -- Keep platform under the player
+                platform.Position = player.Character.HumanoidRootPart.Position - Vector3.new(0, 5, 0)
             end
         end)
 
@@ -188,10 +179,10 @@ button.MouseButton1Click:Connect(function()
         -- Create the "Slow Walk" button
         createButton(2, "Slow Walk", toggleSlowWalk)
 
-        -- Create the "Hover" button (renamed Flight)
+        -- Create the "Hover" button (teleports player upwards)
         createButton(3, "Hover", toggleHover)
 
-        -- Create the "Flight" button (new)
+        -- Create the "Flight" button (creates platform)
         createButton(4, "Flight", toggleFlight)
     end
 end)
