@@ -142,6 +142,7 @@ local function toggleFlight()
         game:GetService("RunService").Heartbeat:Connect(function()
             if player.Character and player.Character:FindFirstChild("Humanoid") then
                 local humanoid = player.Character.Humanoid
+                -- Ensure the platform follows the player only if they're jumping or flying
                 if humanoid:GetState() == Enum.HumanoidStateType.Physics and humanoid.JumpHeight > 0 then
                     if not isJumping then
                         isJumping = true
@@ -158,6 +159,7 @@ local function toggleFlight()
                 end
             end
         end)
+
     else
         -- Remove the platform
         debugPrint("Removing flight platform.")
