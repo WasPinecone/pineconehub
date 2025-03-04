@@ -145,7 +145,7 @@ local function toggleFlight()
             if player.Character and player.Character:FindFirstChild("Humanoid") then
                 local humanoid = player.Character.Humanoid
                 
-                -- If the player is jumping or in the air, platform should follow the player
+                -- Check if the player is jumping or falling (in the air)
                 if humanoid:GetState() == Enum.HumanoidStateType.Physics and humanoid.JumpHeight > 0 then
                     if not isJumping then
                         isJumping = true
