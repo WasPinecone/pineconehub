@@ -1,0 +1,188 @@
+-- Debugging function to help track execution
+local function debugPrint(message)
+    print("[DEBUG] " .. message)
+end
+
+-- Create GUI elements
+local player = game.Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+debugPrint("Player and PlayerGui loaded.")
+
+-- Create the GUI screen
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = playerGui
+debugPrint("ScreenGui created.")
+
+-- Create the main button (square)
+local button = Instance.new("TextButton")
+button.Size = UDim2.new(0, 100, 0, 100)  -- Set size to be square (100x100 pixels)
+button.Position = UDim2.new(0, 10, 1, -110)  -- Position at bottom-left corner, 10 pixels from the left and 110 pixels from the bottom
+button.Text = "PH"  -- Button text is now just "PH"
+button.TextSize = 24
+button.BackgroundColor3 = Color3.fromRGB(0, 255, 0)  -- Green color for the button
+button.Parent = screenGui
+debugPrint("Main button created.")
+
+-- Create the menu frame (initially hidden)
+local menuFrame = Instance.new("Frame")
+menuFrame.Size = UDim2.new(0, 300, 0, 400)
+menuFrame.Position = UDim2.new(0.5, -150, 0.5, -200)
+menuFrame.BackgroundColor3 = Color3.fromRGB(0, 255, 0)  -- Green background for the menu
+menuFrame.BackgroundTransparency = 0.5
+menuFrame.Visible = false
+menuFrame.Parent = screenGui
+debugPrint("Menu frame created (hidden).")
+
+-- Create the scrolling frame inside the menu
+local scrollingFrame = Instance.new("ScrollingFrame")
+scrollingFrame.Size = UDim2.new(1, 0, 1, 0)
+scrollingFrame.ScrollBarThickness = 10
+scrollingFrame.Parent = menuFrame
+debugPrint("Scrolling frame created.")
+
+-- Function to create buttons inside the scrolling frame
+local function createButton(index, buttonText, onClickFunction)
+    debugPrint("Creating button #" .. index)
+    local newButton = Instance.new("TextButton")
+    newButton.Size = UDim2.new(1, -20, 0, 50)
+    newButton.Position = UDim2.new(0, 10, 0, (index - 1) * 60)  -- Spacing between buttons
+    newButton.Text = buttonText
+    newButton.TextSize = 20
+    newButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)  -- Green color for the buttons
+    newButton.Parent = scrollingFrame
+    newButton.MouseButton1Click:Connect(onClickFunction)
+end
+
+-- Sprint functionality
+local isSprinting = false
+local normalWalkSpeed = player.Character and player.Character:FindFirstChildOfClass("Humanoid") and player.Character.Humanoid.WalkSpeed or 16
+local sprintSpeed = 50  -- Speed when sprinting
+local slowWalkSpeed = 2  -- Speed when walking slowly
+
+local function toggleSprint()
+    debugPrint("Sprint button clicked.")
+    if not isSprinting then
+        -- Start sprinting
+        debugPrint("Starting sprint.")
+        if player.Character and player.Character:FindFirstChildOfClass("Humanoid") then
+            local humanoid = player.Character.Humanoid
+            humanoid.WalkSpeed = sprintSpeed
+        end
+    else
+        -- Stop sprinting (reset speed)
+        debugPrint("Stopping sprint.")
+        if player.Character and player.Character:FindFirstChildOfClass("Humanoid") then
+            local humanoid = player.Character.Humanoid
+            humanoid.WalkSpeed = normalWalkSpeed
+        end
+    end
+    isSprinting = not isSprinting  -- Toggle the sprinting state
+end
+
+-- Slow Walk functionality
+local isSlowWalking = false
+
+local function toggleSlowWalk()
+    debugPrint("Slow Walk button clicked.")
+    if not isSlowWalking then
+        -- Start slow walking
+        debugPrint("Starting slow walk.")
+        if player.Character and player.Character:FindFirstChildOfClass("Humanoid") then
+            local humanoid = player.Character.Humanoid
+            humanoid.WalkSpeed = slowWalkSpeed
+        end
+    else
+        -- Stop slow walking (reset speed)
+        debugPrint("Stopping slow walk.")
+        if player.Character and player.Character:FindFirstChildOfClass("Humanoid") then
+            local humanoid = player.Character.Humanoid
+            humanoid.WalkSpeed = normalWalkSpeed
+        end
+    end
+    isSlowWalking = not isSlowWalking  -- Toggle the slow walking state
+end
+
+-- High Jump functionality
+local normalJumpHeight = 50
+local highJumpHeight = 150
+
+local function toggleHighJump()
+    debugPrint("High Jump button clicked.")
+    if player.Character and player.Character:FindFirstChildOfClass("Humanoid") then
+        local humanoid = player.Character.Humanoid
+        humanoid.JumpHeight = highJumpHeight
+    end
+end
+
+-- Low Jump functionality
+local lowJumpHeight = 20
+
+local function toggleLowJump()
+    debugPrint("Low Jump button clicked.")
+    if player.Character and player.Character:FindFirstChildOfClass("Humanoid") then
+        local humanoid = player.Character.Humanoid
+        humanoid.JumpHeight = lowJumpHeight
+    end
+end
+
+-- Flight functionality
+local isFlying = false
+
+local function toggleFlight()
+    debugPrint("Flight button clicked.")
+    if not isFlying then
+        -- Enable flight
+        debugPrint("Enabling flight.")
+        local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid.PlatformStand = true  -- Disable the humanoid's collision for flight
+            -- You can implement custom flight controls here if needed, like moving the player up/down
+            player.Character.HumanoidRootPart.Anchored = true
+            player.Character:MoveTo(player.Character.HumanoidRootPart.Position + Vector3.new(0, 50, 0))  -- Move the player upwards
+        end
+    else
+        -- Disable flight
+        debugPrint("Disabling flight.")
+        local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid.PlatformStand = false  -- Re-enable collision
+            player.Character.HumanoidRootPart.Anchored = false  -- Unanchor the character
+        end
+    end
+    isFlying = not isFlying  -- Toggle the flying state
+end
+
+-- Toggle the menu visibility when the main button is clicked
+button.MouseButton1Click:Connect(function()
+    debugPrint("Main button clicked.")
+    menuFrame.Visible = not menuFrame.Visible
+
+    -- Create buttons in the scrolling menu when it's opened
+    if menuFrame.Visible then
+        -- Clear any existing buttons
+        debugPrint("Clearing existing buttons.")
+        for _, child in pairs(scrollingFrame:GetChildren()) do
+            if child:IsA("TextButton") then
+                child:Destroy()
+            end
+        end
+
+        -- Create the "Sprint" button
+        createButton(1, "Sprint", toggleSprint)
+
+        -- Create the "Slow Walk" button
+        createButton(2, "Slow Walk", toggleSlowWalk)
+
+        -- Create the "High Jump" button
+        createButton(3, "High Jump", toggleHighJump)
+
+        -- Create the "Low Jump" button
+        createButton(4, "Low Jump", toggleLowJump)
+
+        -- Create the "Flight" button
+        createButton(5, "Flight", toggleFlight)
+    end
+end)
+
+debugPrint("Script execution completed.")
