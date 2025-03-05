@@ -18,7 +18,7 @@ debugPrint("ScreenGui created.")
 local button = Instance.new("TextButton")
 button.Size = UDim2.new(0, 100, 0, 100)  -- Set size to be square (100x100 pixels)
 button.Position = UDim2.new(0, 10, 1, -110)  -- Position at bottom-left corner, 10 pixels from the left and 110 pixels from the bottom
-button.Text = "PH"  -- Button text is now just "PH"
+button.Text = "CH"  -- Button text is now just "PH"
 button.TextSize = 24
 button.BackgroundColor3 = Color3.fromRGB(0, 255, 0)  -- Green color for the button
 button.Parent = screenGui
