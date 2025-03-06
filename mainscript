@@ -54,6 +54,27 @@ local function createButton(index, buttonText, onClickFunction)
     newButton.MouseButton1Click:Connect(onClickFunction)
 end
 
+local function toggleInvisibleParts()
+    debugPrint("Toggle Invisible Parts button clicked.")
+    
+    for _, part in pairs(workspace:GetDescendants()) do
+        if part:IsA("BasePart") then
+            -- Check if part is invisible (Transparency > 0.5)
+            if part.Transparency > 0.5 then
+                -- Make the part visible
+                part.Transparency = 0
+                part.CanCollide = true
+                debugPrint("Made " .. part.Name .. " visible.")
+            else
+                -- Make the part invisible
+                part.Transparency = 1
+                part.CanCollide = false
+                debugPrint("Made " .. part.Name .. " invisible.")
+            end
+        end
+    end
+end
+
 -- Sprint functionality
 local isSprinting = false
 local normalWalkSpeed = player.Character and player.Character:FindFirstChildOfClass("Humanoid") and player.Character.Humanoid.WalkSpeed or 16
@@ -284,6 +305,10 @@ button.MouseButton1Click:Connect(function()
         createButton(8, "Kill Player", killPlayer)
 
         createButton(9, "Platform", togglePlatform)
+
+        -- Create the "Toggle Invisible Parts" button
+        createButton(10, "Toggle Invisible Parts", toggleInvisibleParts)
+
 
     end
 end)
