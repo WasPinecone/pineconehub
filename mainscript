@@ -121,49 +121,30 @@ end
 -- Flight functionality (platform under the player)
 local isFlying = false
 local platform
-
--- Keep track of whether the player is jumping
-local isJumping = false
+local platformFollowConnection
 
 local function toggleFlight()
     debugPrint("Flight button clicked.")
-    
+
     if not isFlying then
         -- Create a platform under the user
         debugPrint("Creating flight platform.")
         platform = Instance.new("Part")
         platform.Size = Vector3.new(10, 1, 10)  -- Platform size
-        platform.Position = player.Character.HumanoidRootPart.Position - Vector3.new(0, 5, 0)  -- Place below the character
         platform.Anchored = true
         platform.CanCollide = true
         platform.BrickColor = BrickColor.Green()  -- Set color to green
         platform.Parent = workspace
 
         -- Start a loop to track player position while flying
-        local platformFollowConnection
         platformFollowConnection = game:GetService("RunService").Heartbeat:Connect(function()
-            if player.Character and player.Character:FindFirstChild("Humanoid") then
-                local humanoid = player.Character.Humanoid
-                
-                -- Check if the player is jumping or falling (in the air)
-                if humanoid:GetState() == Enum.HumanoidStateType.Physics and humanoid.JumpHeight > 0 then
-                    if not isJumping then
-                        isJumping = true
-                        debugPrint("Player is jumping, platform will follow.")
-                    end
-                    -- Keep the platform under the player while jumping
-                    platform.Position = player.Character.HumanoidRootPart.Position - Vector3.new(0, 5, 0)
-                elseif humanoid:GetState() ~= Enum.HumanoidStateType.Physics or humanoid.JumpHeight == 0 then
-                    if isJumping then
-                        isJumping = false
-                        debugPrint("Player stopped jumping, platform stops following.")
-                    end
-                end
+            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                platform.Position = player.Character.HumanoidRootPart.Position - Vector3.new(0, 5, 0)
             end
         end)
 
     else
-        -- Remove the platform and disconnect the loop
+        -- Remove the platform and stop tracking
         debugPrint("Removing flight platform.")
         if platform then
             platform:Destroy()
@@ -172,6 +153,7 @@ local function toggleFlight()
         -- Disconnect the loop for platform movement
         if platformFollowConnection then
             platformFollowConnection:Disconnect()
+            platformFollowConnection = nil
         end
     end
     isFlying = not isFlying  -- Toggle the flying state
