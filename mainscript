@@ -220,6 +220,30 @@ local function teleportToClosestPlayer()
     end
 end
 
+local platform
+local isPlatformActive = false
+
+local function togglePlatform()
+    debugPrint("Platform button clicked.")
+    if not isPlatformActive then
+        debugPrint("Creating platform.")
+        platform = Instance.new("Part")
+        platform.Size = Vector3.new(10, 1, 10)
+        platform.Position = player.Character.HumanoidRootPart.Position - Vector3.new(0, 5, 0)
+        platform.Anchored = true
+        platform.CanCollide = true
+        platform.BrickColor = BrickColor.Green()
+        platform.Parent = workspace
+        isPlatformActive = true
+    else
+        debugPrint("Removing platform.")
+        if platform then
+            platform:Destroy()
+        end
+        isPlatformActive = false
+    end
+end
+
 -- Toggle the menu visibility when the main button is clicked
 button.MouseButton1Click:Connect(function()
     debugPrint("Main button clicked.")
@@ -258,6 +282,8 @@ button.MouseButton1Click:Connect(function()
 
         -- Create the "Kill Player" button (instantly resets the player)
         createButton(8, "Kill Player", killPlayer)
+
+        createButton(9, "Platform", togglePlatform)
 
     end
 end)
