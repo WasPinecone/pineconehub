@@ -1,3 +1,51 @@
+-- 🟢 C0NEZ0NE Boot Intro
+local player = game.Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- Intro GUI Setup
+local introGui = Instance.new("ScreenGui")
+introGui.IgnoreGuiInset = true
+introGui.ResetOnSpawn = false
+introGui.Parent = playerGui
+
+local blackFrame = Instance.new("Frame")
+blackFrame.Size = UDim2.new(1, 0, 1, 0)
+blackFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+blackFrame.BackgroundTransparency = 1
+blackFrame.Parent = introGui
+
+local introText = Instance.new("TextLabel")
+introText.Size = UDim2.new(1, 0, 1, 0)
+introText.Position = UDim2.new(0, 0, 0, 0)
+introText.BackgroundTransparency = 1
+introText.Text = "WELCOME TO C0NEZ0NE!"
+introText.TextColor3 = Color3.fromRGB(0, 255, 0)
+introText.TextScaled = true
+introText.Font = Enum.Font.Code
+introText.TextTransparency = 1
+introText.Parent = introGui
+
+-- Smooth fade helper
+local function smoothFade(propSetter, fromVal, toVal, duration)
+	local steps = 30
+	for i = 0, steps do
+		local alpha = i / steps
+		local value = fromVal + (toVal - fromVal) * alpha
+		propSetter(value)
+		task.wait(duration / steps)
+	end
+end
+
+-- Run intro animation
+smoothFade(function(v) blackFrame.BackgroundTransparency = v end, 1, 0, 1) -- Fade to black
+task.wait(0.5)
+smoothFade(function(v) introText.TextTransparency = v end, 1, 0, 1) -- Show text
+task.wait(2)
+smoothFade(function(v) introText.TextTransparency = v end, 0, 1, 1) -- Hide text
+task.wait(0.5)
+smoothFade(function(v) blackFrame.BackgroundTransparency = v end, 0, 1, 1) -- Fade out black
+introGui:Destroy()
+
 -- Debugging function to help track execution
 local function debugPrint(message)
     print("[DEBUG] " .. message)
