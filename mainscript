@@ -314,6 +314,41 @@ local function togglePlatform()
         isPlatformActive = false
     end
 end
+-- ESP functionality
+local isESPEnabled = false
+local espBoxes = {}
+
+local function toggleESP()
+    debugPrint("ESP button clicked.")
+
+    if not isESPEnabled then
+        debugPrint("Enabling ESP.")
+        for _, otherPlayer in pairs(game.Players:GetPlayers()) do
+            if otherPlayer ~= player and otherPlayer.Character and otherPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                local adorn = Instance.new("BoxHandleAdornment")
+                adorn.Adornee = otherPlayer.Character.HumanoidRootPart
+                adorn.Size = Vector3.new(4, 6, 2)
+                adorn.Color3 = Color3.fromRGB(0, 255, 0)
+                adorn.Transparency = 0.2
+                adorn.AlwaysOnTop = true
+                adorn.ZIndex = 5
+                adorn.Name = "C0NEZ0NE_ESP"
+                adorn.Parent = otherPlayer.Character
+                table.insert(espBoxes, adorn)
+            end
+        end
+    else
+        debugPrint("Disabling ESP.")
+        for _, adorn in ipairs(espBoxes) do
+            if adorn and adorn.Parent then
+                adorn:Destroy()
+            end
+        end
+        espBoxes = {}
+    end
+
+    isESPEnabled = not isESPEnabled
+end
 
 -- Toggle the menu visibility when the main button is clicked
 button.MouseButton1Click:Connect(function()
@@ -359,6 +394,8 @@ button.MouseButton1Click:Connect(function()
         -- Create the "Toggle Invisible Parts" button
         createButton(10, "Toggle Invisible Parts", toggleInvisibleParts)
 
+	-- Create the "ESP" button (highlights players)
+	createButton(11, "ESP", toggleESP)
 
     end
 end)
