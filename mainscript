@@ -314,43 +314,39 @@ local function togglePlatform()
     end
 end
 
--- Tool functionality (replaces glow)
-local hasTool = false
-local toolId = 123234545
-local insertedTool = nil
+local lanternToolId = 123234545
+local hasLantern = false
+local lanternTool = nil
 
 local function toggleGlow()
-    debugPrint("Glow button clicked (Tool mode).")
-    
-    if not hasTool then
-        debugPrint("Inserting tool...")
-        local success, tool = pcall(function()
-            return game:GetService("InsertService"):LoadAsset(toolId)
-        end)
+	debugPrint("Glow button clicked.")
 
-        if success and tool then
-            -- Find the actual Tool instance inside the model
-            local foundTool = tool:FindFirstChildOfClass("Tool")
-            if foundTool then
-                insertedTool = foundTool
-                insertedTool.Parent = player.Backpack
-                debugPrint("Tool inserted.")
-                hasTool = true
-            else
-                debugPrint("No Tool found in inserted model.")
-                tool:Destroy()
-            end
-        else
-            debugPrint("Failed to insert tool.")
-        end
-    else
-        debugPrint("Removing tool...")
-        if insertedTool and insertedTool.Parent then
-            insertedTool:Destroy()
-        end
-        insertedTool = nil
-        hasTool = false
-    end
+	if not hasLantern then
+		local success, result = pcall(function()
+			return game:GetService("InsertService"):LoadAsset(lanternToolId)
+		end)
+
+		if success and result then
+			local tool = result:FindFirstChildWhichIsA("Tool")
+			if tool then
+				tool.Parent = player.Backpack
+				lanternTool = tool
+				hasLantern = true
+				debugPrint("Lantern tool given to player.")
+			else
+				warn("No tool found in inserted asset.")
+			end
+		else
+			warn("Failed to insert lantern tool:", result)
+		end
+	else
+		if lanternTool then
+			lanternTool:Destroy()
+			lanternTool = nil
+			hasLantern = false
+			debugPrint("Lantern tool removed from player.")
+		end
+	end
 end
 
 
