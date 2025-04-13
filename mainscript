@@ -6,7 +6,6 @@ end
 -- Create GUI elements
 local player = game.Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
-screenGui.ResetOnSpawn = false
 
 debugPrint("Player and PlayerGui loaded.")
 
