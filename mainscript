@@ -1,6 +1,7 @@
 -- 🟢 C0NEZ0NE Boot Intro
 local player = game.Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
+local virtualInput = game:GetService("VirtualInputManager")
 
 -- Intro GUI Setup
 local introGui = Instance.new("ScreenGui")
@@ -349,6 +350,31 @@ local function toggleESP()
 
     isESPEnabled = not isESPEnabled
 end
+-- Anti-AFK functionality
+local isAntiAFKEnabled = false
+local antiAFKConnection = nil
+
+local function toggleAntiAFK()
+    debugPrint("Anti-AFK button clicked.")
+
+    if not isAntiAFKEnabled then
+        debugPrint("Enabling Anti-AFK.")
+        antiAFKConnection = game:GetService("Players").LocalPlayer.Idled:Connect(function()
+            debugPrint("Player idle detected. Sending virtual input.")
+            virtualInput:SendKeyEvent(true, Enum.KeyCode.Space, false, game)
+            wait(0.1)
+            virtualInput:SendKeyEvent(false, Enum.KeyCode.Space, false, game)
+        end)
+    else
+        debugPrint("Disabling Anti-AFK.")
+        if antiAFKConnection then
+            antiAFKConnection:Disconnect()
+            antiAFKConnection = nil
+        end
+    end
+
+    isAntiAFKEnabled = not isAntiAFKEnabled
+end
 
 -- Toggle the menu visibility when the main button is clicked
 button.MouseButton1Click:Connect(function()
@@ -396,6 +422,9 @@ button.MouseButton1Click:Connect(function()
 
 	-- Create the "ESP" button (highlights players)
 	createButton(11, "ESP", toggleESP)
+
+	-- Create the "Anti-AFK" button
+	createButton(12, "Anti-AFK", toggleAntiAFK)
 
     end
 end)
