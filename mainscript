@@ -376,100 +376,6 @@ local function toggleAntiAFK()
     isAntiAFKEnabled = not isAntiAFKEnabled
 end
 
--- Pathfind to Closest Player
-local isPathfindingEnabled = false
-local pathfindConnection = nil
-local ContextActionService = game:GetService("ContextActionService")
-
--- Block movement input
-local function blockInput(actionName, inputState, inputObject)
-	return Enum.ContextActionResult.Sink
-end
-
-local function disableMovementInput()
-	ContextActionService:BindAction("DisableMovement", blockInput, false,
-		Enum.PlayerActions.CharacterForward,
-		Enum.PlayerActions.CharacterBackward,
-		Enum.PlayerActions.CharacterLeft,
-		Enum.PlayerActions.CharacterRight,
-		Enum.PlayerActions.CharacterJump)
-end
-
-local function enableMovementInput()
-	ContextActionService:UnbindAction("DisableMovement")
-end
-
--- Get closest player
-local function getClosestPlayer()
-	local players = game:GetService("Players"):GetPlayers()
-	local localPlayer = game:GetService("Players").LocalPlayer
-	local closest = nil
-	local shortestDist = math.huge
-
-	for _, player in ipairs(players) do
-		if player ~= localPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-			local myPos = localPlayer.Character.HumanoidRootPart.Position
-			local theirPos = player.Character.HumanoidRootPart.Position
-			local dist = (myPos - theirPos).Magnitude
-			if dist < shortestDist then
-				shortestDist = dist
-				closest = player
-			end
-		end
-	end
-
-	return closest
-end
-
--- Toggle function
-local function togglePathfinding()
-	debugPrint("Pathfinding button clicked.")
-
-	local localPlayer = game:GetService("Players").LocalPlayer
-	local char = localPlayer.Character
-	if not char or not char:FindFirstChild("HumanoidRootPart") then return end
-
-	if not isPathfindingEnabled then
-		debugPrint("Enabling Pathfinding to closest player.")
-		isPathfindingEnabled = true
-
-		local pathfindingService = game:GetService("PathfindingService")
-		local humanoid = char:FindFirstChildOfClass("Humanoid")
-
-		-- Disable movement input
-		disableMovementInput()
-
-		pathfindConnection = game:GetService("RunService").Heartbeat:Connect(function()
-			if not isPathfindingEnabled then return end
-
-			local target = getClosestPlayer()
-			if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
-				local path = pathfindingService:CreatePath()
-				path:ComputeAsync(char.HumanoidRootPart.Position, target.Character.HumanoidRootPart.Position)
-
-				if path.Status == Enum.PathStatus.Complete then
-					for _, waypoint in ipairs(path:GetWaypoints()) do
-						if not isPathfindingEnabled then break end
-						humanoid:MoveTo(waypoint.Position)
-						humanoid.MoveToFinished:Wait()
-					end
-				end
-			end
-		end)
-
-	else
-		debugPrint("Disabling Pathfinding.")
-		isPathfindingEnabled = false
-		if pathfindConnection then
-			pathfindConnection:Disconnect()
-			pathfindConnection = nil
-		end
-
-		-- Re-enable input
-		enableMovementInput()
-	end
-end
-
 -- Toggle the menu visibility when the main button is clicked
 button.MouseButton1Click:Connect(function()
     debugPrint("Main button clicked.")
@@ -519,9 +425,6 @@ button.MouseButton1Click:Connect(function()
 
 	-- Create the "Anti-AFK" button
 	createButton(12, "Anti-AFK", toggleAntiAFK)
-
-	-- Create the "Pathfind" button
-	createButton(13, "Pathfind", togglePathfinding)
 
     end
 end)
