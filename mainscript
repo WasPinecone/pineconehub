@@ -1,405 +1,237 @@
--- 🟢 C0NEZ0NE Boot Intro
+
+-- C0NEZ0NE Full Script with All Features
+
+-- ✅ Boot Intro
 local player = game.Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
-
--- Intro GUI Setup
-local introGui = Instance.new("ScreenGui")
+local introGui = Instance.new("ScreenGui", playerGui)
 introGui.IgnoreGuiInset = true
 introGui.ResetOnSpawn = false
-introGui.Parent = playerGui
 
-local blackFrame = Instance.new("Frame")
-blackFrame.Size = UDim2.new(1, 0, 1, 0)
-blackFrame.BackgroundColor3 = Color3.new(0, 0, 0)
-blackFrame.BackgroundTransparency = 1
-blackFrame.Parent = introGui
+local black = Instance.new("Frame", introGui)
+black.Size = UDim2.new(1, 0, 1, 0)
+black.BackgroundColor3 = Color3.new(0, 0, 0)
+black.BackgroundTransparency = 1
 
-local introText = Instance.new("TextLabel")
-introText.Size = UDim2.new(1, 0, 1, 0)
-introText.Position = UDim2.new(0, 0, 0, 0)
-introText.BackgroundTransparency = 1
-introText.Text = "WELCOME TO C0NEZ0NE!"
-introText.TextColor3 = Color3.fromRGB(0, 255, 0)
-introText.TextScaled = true
-introText.Font = Enum.Font.Code
-introText.TextTransparency = 1
-introText.Parent = introGui
+local text = Instance.new("TextLabel", introGui)
+text.Size = UDim2.new(1, 0, 1, 0)
+text.BackgroundTransparency = 1
+text.Text = "WELCOME TO C0NEZ0NE!"
+text.TextColor3 = Color3.fromRGB(0, 255, 0)
+text.TextScaled = true
+text.Font = Enum.Font.Code
+text.TextTransparency = 1
 
--- Smooth fade helper
-local function smoothFade(propSetter, fromVal, toVal, duration)
-	local steps = 30
-	for i = 0, steps do
-		local alpha = i / steps
-		local value = fromVal + (toVal - fromVal) * alpha
-		propSetter(value)
-		task.wait(duration / steps)
-	end
+local function fade(obj, prop, from, to, duration)
+    local steps = 30
+    for i = 0, steps do
+        local v = from + (to - from) * (i / steps)
+        obj[prop] = v
+        task.wait(duration / steps)
+    end
 end
 
--- Run intro animation
-smoothFade(function(v) blackFrame.BackgroundTransparency = v end, 1, 0, 1) -- Fade to black
+fade(black, "BackgroundTransparency", 1, 0, 1)
 task.wait(0.5)
-smoothFade(function(v) introText.TextTransparency = v end, 1, 0, 1) -- Show text
+fade(text, "TextTransparency", 1, 0, 1)
 task.wait(2)
-smoothFade(function(v) introText.TextTransparency = v end, 0, 1, 1) -- Hide text
+fade(text, "TextTransparency", 0, 1, 1)
 task.wait(0.5)
-smoothFade(function(v) blackFrame.BackgroundTransparency = v end, 0, 1, 1) -- Fade out black
+fade(black, "BackgroundTransparency", 0, 1, 1)
 introGui:Destroy()
 
--- Debugging function to help track execution
-local function debugPrint(message)
-    print("[DEBUG] " .. message)
-end
+-- ✅ GUI Core Setup
+local CoreGui = game:GetService("StarterGui")
+local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+gui.Name = "C0NEZ0NE"
 
--- Create GUI elements
-local player = game.Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
+local menu = Instance.new("Frame", gui)
+menu.Size = UDim2.new(0, 300, 0, 400)
+menu.Position = UDim2.new(0.5, -150, 0.5, -200)
+menu.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+menu.BackgroundTransparency = 0.2
+menu.Visible = false
 
-debugPrint("Player and PlayerGui loaded.")
-
--- Create the GUI screen
-local screenGui = Instance.new("ScreenGui")
-screenGui.Parent = playerGui
-screenGui.ResetOnSpawn = false 
-debugPrint("ScreenGui created.")
-
--- Create the main button (square)
-local button = Instance.new("TextButton")
-button.Size = UDim2.new(0, 100, 0, 100)  -- Set size to be square (100x100 pixels)
-button.Position = UDim2.new(0, 10, 1, -110)  -- Position at bottom-left corner, 10 pixels from the left and 110 pixels from the bottom
-button.Text = "CH"  -- Button text is now just "PH"
-button.TextSize = 24
-button.BackgroundColor3 = Color3.fromRGB(0, 255, 0)  -- Green color for the button
-button.Parent = screenGui
-debugPrint("Main button created.")
-
--- Create the menu frame (initially hidden)
-local menuFrame = Instance.new("Frame")
-menuFrame.Size = UDim2.new(0, 300, 0, 400)
-menuFrame.Position = UDim2.new(0.5, -150, 0.5, -200)
-menuFrame.BackgroundColor3 = Color3.fromRGB(0, 255, 0)  -- Green background for the menu
-menuFrame.BackgroundTransparency = 0.5
-menuFrame.Visible = false
-menuFrame.Parent = screenGui
-debugPrint("Menu frame created (hidden).")
-
--- Create the scrolling frame inside the menu
-local scrollingFrame = Instance.new("ScrollingFrame")
-scrollingFrame.Size = UDim2.new(1, 0, 1, 0)
-scrollingFrame.ScrollBarThickness = 10
-scrollingFrame.Parent = menuFrame
-debugPrint("Scrolling frame created.")
-
--- Function to create buttons inside the scrolling frame
-local function createButton(index, buttonText, onClickFunction)
-    debugPrint("Creating button #" .. index)
-    local newButton = Instance.new("TextButton")
-    newButton.Size = UDim2.new(1, -20, 0, 50)
-    newButton.Position = UDim2.new(0, 10, 0, (index - 1) * 60)  -- Spacing between buttons
-    newButton.Text = buttonText
-    newButton.TextSize = 20
-    newButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)  -- Green color for the buttons
-    newButton.Parent = scrollingFrame
-    newButton.MouseButton1Click:Connect(onClickFunction)
-end
-
-local function toggleInvisibleParts()
-    debugPrint("Toggle Invisible Parts button clicked.")
-    
-    for _, part in pairs(workspace:GetDescendants()) do
-        if part:IsA("BasePart") then
-            -- Check if part is invisible (Transparency > 0.5)
-            if part.Transparency > 0.5 then
-                -- Make the part visible
-                part.Transparency = 0
-                part.CanCollide = true
-                debugPrint("Made " .. part.Name .. " visible.")
-            else
-                -- Make the part invisible
-                part.Transparency = 1
-                part.CanCollide = false
-                debugPrint("Made " .. part.Name .. " invisible.")
-            end
-        end
-    end
-end
-
--- Sprint functionality
-local isSprinting = false
-local normalWalkSpeed = player.Character and player.Character:FindFirstChildOfClass("Humanoid") and player.Character.Humanoid.WalkSpeed or 16
-local sprintSpeed = 50  -- Speed when sprinting
-local slowWalkSpeed = 2  -- Speed when walking slowly
-
-local function toggleSprint()
-    debugPrint("Sprint button clicked.")
-    if not isSprinting then
-        -- Start sprinting
-        debugPrint("Starting sprint.")
-        if player.Character and player.Character:FindFirstChildOfClass("Humanoid") then
-            local humanoid = player.Character.Humanoid
-            humanoid.WalkSpeed = sprintSpeed
-        end
-    else
-        -- Stop sprinting (reset speed)
-        debugPrint("Stopping sprint.")
-        if player.Character and player.Character:FindFirstChildOfClass("Humanoid") then
-            local humanoid = player.Character.Humanoid
-            humanoid.WalkSpeed = normalWalkSpeed
-        end
-    end
-    isSprinting = not isSprinting  -- Toggle the sprinting state
-end
-
--- Slow Walk functionality
-local isSlowWalking = false
-
-local function toggleSlowWalk()
-    debugPrint("Slow Walk button clicked.")
-    if not isSlowWalking then
-        -- Start slow walking
-        debugPrint("Starting slow walk.")
-        if player.Character and player.Character:FindFirstChildOfClass("Humanoid") then
-            local humanoid = player.Character.Humanoid
-            humanoid.WalkSpeed = slowWalkSpeed
-        end
-    else
-        -- Stop slow walking (reset speed)
-        debugPrint("Stopping slow walk.")
-        if player.Character and player.Character:FindFirstChildOfClass("Humanoid") then
-            local humanoid = player.Character.Humanoid
-            humanoid.WalkSpeed = normalWalkSpeed
-        end
-    end
-    isSlowWalking = not isSlowWalking  -- Toggle the slow walking state
-end
-
--- Hover functionality (teleport the player upwards)
-local isHovering = false
-
-local function toggleHover()
-    debugPrint("Hover button clicked.")
-    if not isHovering then
-        -- Teleport the player upwards
-        debugPrint("Teleporting player upwards.")
-        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-            player.Character.HumanoidRootPart.CFrame = player.Character.HumanoidRootPart.CFrame + Vector3.new(0, 10, 0)  -- Move up by 10 studs
-        end
-    end
-    isHovering = not isHovering  -- Toggle the hovering state
-end
-
--- Flight functionality (platform under the player)
-local isFlying = false
-local platform
-local platformFollowConnection
-
-local function toggleFlight()
-    debugPrint("Flight button clicked.")
-
-    if not isFlying then
-        -- Create a platform under the user
-        debugPrint("Creating flight platform.")
-        platform = Instance.new("Part")
-        platform.Size = Vector3.new(10, 1, 10)  -- Platform size
-        platform.Anchored = true
-        platform.CanCollide = true
-        platform.BrickColor = BrickColor.Green()  -- Set color to green
-        platform.Parent = workspace
-
-        -- Start a loop to track player position while flying
-        platformFollowConnection = game:GetService("RunService").Heartbeat:Connect(function()
-            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                platform.Position = player.Character.HumanoidRootPart.Position - Vector3.new(0, 5, 0)
-            end
-        end)
-
-    else
-        -- Remove the platform and stop tracking
-        debugPrint("Removing flight platform.")
-        if platform then
-            platform:Destroy()
-        end
-        
-        -- Disconnect the loop for platform movement
-        if platformFollowConnection then
-            platformFollowConnection:Disconnect()
-            platformFollowConnection = nil
-        end
-    end
-    isFlying = not isFlying  -- Toggle the flying state
-end
-
--- Teleportation Functions
-local function teleportToFriend()
-    debugPrint("Teleporting to closest friend.")
-    local closestFriend = nil
-    local shortestDistance = math.huge  -- Start with an infinitely large number
-
-    -- Find the closest friend
-    for _, friend in pairs(player.Friends:GetChildren()) do
-        if friend:IsA("Player") and friend.Character then
-            local distance = (player.Character.HumanoidRootPart.Position - friend.Character.HumanoidRootPart.Position).Magnitude
-            if distance < shortestDistance then
-                closestFriend = friend
-                shortestDistance = distance
-            end
-        end
-    end
-
-    if closestFriend then
-        player.Character.HumanoidRootPart.CFrame = closestFriend.Character.HumanoidRootPart.CFrame
-    end
-end
-
-local function teleportToRandomPlayer()
-    debugPrint("Teleporting to random player.")
-    local allPlayers = game.Players:GetPlayers()
-    local randomPlayer = allPlayers[math.random(1, #allPlayers)]
-
-    if randomPlayer.Character then
-        player.Character.HumanoidRootPart.CFrame = randomPlayer.Character.HumanoidRootPart.CFrame
-    end
-end
-
--- Function to kill the player
-local function killPlayer()
-    debugPrint("Kill Player button clicked.")
-    if player.Character then
-        player.Character:BreakJoints()  -- Forcefully kills the player
-    end
-end
-
-local function teleportToClosestPlayer()
-    debugPrint("Teleporting to closest player.")
-    local closestPlayer = nil
-    local shortestDistance = math.huge  -- Start with an infinitely large number
-
-    -- Find the closest player
-    for _, otherPlayer in pairs(game.Players:GetPlayers()) do
-        if otherPlayer.Character and otherPlayer ~= player then
-            local distance = (player.Character.HumanoidRootPart.Position - otherPlayer.Character.HumanoidRootPart.Position).Magnitude
-            if distance < shortestDistance then
-                closestPlayer = otherPlayer
-                shortestDistance = distance
-            end
-        end
-    end
-
-    if closestPlayer then
-        player.Character.HumanoidRootPart.CFrame = closestPlayer.Character.HumanoidRootPart.CFrame
-    end
-end
-
-local platform
-local isPlatformActive = false
-
-local function togglePlatform()
-    debugPrint("Platform button clicked.")
-    if not isPlatformActive then
-        debugPrint("Creating platform.")
-        platform = Instance.new("Part")
-        platform.Size = Vector3.new(10, 1, 10)
-        platform.Position = player.Character.HumanoidRootPart.Position - Vector3.new(0, 5, 0)
-        platform.Anchored = true
-        platform.CanCollide = true
-        platform.BrickColor = BrickColor.Green()
-        platform.Parent = workspace
-        isPlatformActive = true
-    else
-        debugPrint("Removing platform.")
-        if platform then
-            platform:Destroy()
-        end
-        isPlatformActive = false
-    end
-end
-
-local lanternToolId = 123234545
-local hasLantern = false
-local lanternTool = nil
-
-local function toggleGlow()
-	debugPrint("Glow button clicked.")
-
-	if not hasLantern then
-		local success, result = pcall(function()
-			return game:GetService("InsertService"):LoadAsset(lanternToolId)
-		end)
-
-		if success and result then
-			local tool = result:FindFirstChildWhichIsA("Tool")
-			if tool then
-				tool.Parent = player.Backpack
-				lanternTool = tool
-				hasLantern = true
-				debugPrint("Lantern tool given to player.")
-			else
-				warn("No tool found in inserted asset.")
-			end
-		else
-			warn("Failed to insert lantern tool:", result)
-		end
-	else
-		if lanternTool then
-			lanternTool:Destroy()
-			lanternTool = nil
-			hasLantern = false
-			debugPrint("Lantern tool removed from player.")
-		end
-	end
-end
-
-
--- Toggle the menu visibility when the main button is clicked
-button.MouseButton1Click:Connect(function()
-    debugPrint("Main button clicked.")
-    menuFrame.Visible = not menuFrame.Visible
-
-    -- Create buttons in the scrolling menu when it's opened
-    if menuFrame.Visible then
-        -- Clear any existing buttons
-        debugPrint("Clearing existing buttons.")
-        for _, child in pairs(scrollingFrame:GetChildren()) do
-            if child:IsA("TextButton") then
-                child:Destroy()
-            end
-        end
-
-        -- Create the "Sprint" button
-        createButton(1, "Sprint", toggleSprint)
-
-        -- Create the "Slow Walk" button
-        createButton(2, "Slow Walk", toggleSlowWalk)
-
-        -- Create the "Hover" button (teleports player upwards)
-        createButton(3, "Hover", toggleHover)
-
-        -- Create the "Flight" button (creates platform)
-        createButton(4, "Flight", toggleFlight)
-
-        -- Create the "GotoFriend" button (teleports to closest friend)
-        createButton(5, "GotoFriend", teleportToFriend)
-
-        -- Create the "GotoRandom" button (teleports to random player)
-        createButton(6, "GotoRandom", teleportToRandomPlayer)
-
-        -- Create the "GotoClosest" button (teleports to closest player)
-        createButton(7, "GotoClosest", teleportToClosestPlayer)
-
-        -- Create the "Kill Player" button (instantly resets the player)
-        createButton(8, "Kill Player", killPlayer)
-
-        createButton(9, "Platform", togglePlatform)
-
-        -- Create the "Toggle Invisible Parts" button
-        createButton(10, "Toggle Invisible Parts", toggleInvisibleParts)
-
-	-- Create the "Glow" button
-	createButton(11, "Give lantern", toggleGlow)
-
-
-
+-- ✅ Toggle Menu
+local UIS = game:GetService("UserInputService")
+UIS.InputBegan:Connect(function(i, g)
+    if g then return end
+    if i.KeyCode == Enum.KeyCode.RightShift then
+        menu.Visible = not menu.Visible
     end
 end)
 
-debugPrint("Script execution completed.")
+-- ✅ Function Buttons
+local function newButton(name, callback)
+    local b = Instance.new("TextButton", menu)
+    b.Size = UDim2.new(1, 0, 0, 30)
+    b.Text = name
+    b.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+    b.Font = Enum.Font.Code
+    b.TextColor3 = Color3.new(0, 0, 0)
+    b.TextScaled = true
+    b.MouseButton1Click:Connect(callback)
+end
+
+-- ✅ Sprint
+newButton("Sprint", function()
+    local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+    if hum then hum.WalkSpeed = 100 end
+end)
+
+-- ✅ Slow Walk
+newButton("Slow Walk", function()
+    local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+    if hum then hum.WalkSpeed = 8 end
+end)
+
+-- ✅ Hover
+newButton("Hover", function()
+    local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+    while true do
+        task.wait()
+        if not hrp or not hrp.Parent then break end
+        hrp.Velocity = Vector3.new(0, 50, 0)
+    end
+end)
+
+-- ✅ Flight
+newButton("Fly", function()
+    local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+    local bv = Instance.new("BodyVelocity", hrp)
+    bv.Velocity = Vector3.new(0, 50, 0)
+    bv.MaxForce = Vector3.new(0, 1e5, 0)
+end)
+
+-- ✅ Teleport
+newButton("Teleport Forward", function()
+    local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+    if hrp then hrp.CFrame = hrp.CFrame + hrp.CFrame.LookVector * 50 end
+end)
+
+-- ✅ Kill
+newButton("Kill Self", function()
+    local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+    if hum then hum.Health = 0 end
+end)
+
+-- ✅ Platform
+newButton("Create Platform", function()
+    local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+    local part = Instance.new("Part", workspace)
+    part.Anchored = true
+    part.Size = Vector3.new(10, 1, 10)
+    part.Position = hrp.Position - Vector3.new(0, 3, 0)
+end)
+
+-- ✅ Glow
+newButton("Glow", function()
+    local tool = Instance.new("Tool")
+    tool.Name = "Lantern"
+    local handle = Instance.new("Part", tool)
+    handle.Size = Vector3.new(1,1,1)
+    handle.Name = "Handle"
+    local light = Instance.new("PointLight", handle)
+    light.Range = 20
+    light.Brightness = 5
+    tool.Parent = player.Backpack
+end)
+
+-- ✅ Delete Tool
+newButton("Delete Tool", function()
+    local tool = Instance.new("Tool")
+    tool.RequiresHandle = false
+    tool.Name = "Delete"
+    tool.Activated:Connect(function()
+        local target = player:GetMouse().Target
+        if target then target:Destroy() end
+    end)
+    tool.Parent = player.Backpack
+end)
+
+-- ✅ Message Spammer
+newButton("Spam Message", function()
+    while true do
+        task.wait(0.2)
+        game.ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer("C0NEZ0NE RULES", "All")
+    end
+end)
+
+-- ✅ R6 / R15 Switcher
+newButton("Switch R6/R15", function()
+    local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+    if hum and hum.RigType then
+        local newRig = (hum.RigType == Enum.HumanoidRigType.R15) and Enum.HumanoidRigType.R6 or Enum.HumanoidRigType.R15
+        hum.RigType = newRig
+    end
+end)
+
+-- ✅ ESP
+newButton("ESP", function()
+    for _, p in ipairs(game.Players:GetPlayers()) do
+        if p ~= player and p.Character and p.Character:FindFirstChild("Head") then
+            local h = p.Character.Head
+            local b = Instance.new("BillboardGui", h)
+            b.Size = UDim2.new(0, 100, 0, 40)
+            b.Adornee = h
+            b.AlwaysOnTop = true
+            local t = Instance.new("TextLabel", b)
+            t.Text = p.Name
+            t.Size = UDim2.new(1, 0, 1, 0)
+            t.BackgroundTransparency = 1
+            t.TextColor3 = Color3.new(0, 1, 0)
+            t.TextScaled = true
+        end
+    end
+end)
+
+-- ✅ Mass TP Items
+newButton("Mass TP Items", function()
+    for _, item in ipairs(workspace:GetDescendants()) do
+        if item:IsA("Tool") then
+            item.CFrame = player.Character.HumanoidRootPart.CFrame
+        end
+    end
+end)
+
+-- ✅ Bunny Hop
+newButton("Bunny Hop", function()
+    while true do
+        local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+        if hum then hum.Jump = true end
+        task.wait(0.5)
+    end
+end)
+
+-- ✅ Wall Climb
+newButton("Wall Climb", function()
+    local char = player.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+    while true do
+        hrp.Velocity = Vector3.new(0, 50, 0)
+        task.wait(0.2)
+    end
+end)
+
+-- ✅ Anti-AFK
+newButton("Anti-AFK", function()
+    local vu = game:GetService("VirtualUser")
+    player.Idled:Connect(function()
+        vu:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+        task.wait(1)
+        vu:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+    end)
+end)
+
+-- ✅ TP to Cursor
+newButton("TP to Cursor", function()
+    local mouse = player:GetMouse()
+    local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+    if mouse and hrp then
+        hrp.CFrame = CFrame.new(mouse.Hit.Position + Vector3.new(0, 3, 0))
+    end
+end)
