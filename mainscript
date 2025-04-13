@@ -313,33 +313,46 @@ local function togglePlatform()
         isPlatformActive = false
     end
 end
--- Glow functionality
-local isGlowing = false
-local glowLight
+
+-- Tool functionality (replaces glow)
+local hasTool = false
+local toolId = 123234545
+local insertedTool = nil
 
 local function toggleGlow()
-    debugPrint("Glow button clicked.")
-    local character = player.Character
-    if not character or not character:FindFirstChild("HumanoidRootPart") then return end
+    debugPrint("Glow button clicked (Tool mode).")
+    
+    if not hasTool then
+        debugPrint("Inserting tool...")
+        local success, tool = pcall(function()
+            return game:GetService("InsertService"):LoadAsset(toolId)
+        end)
 
-    if not isGlowing then
-        debugPrint("Adding glow.")
-        glowLight = Instance.new("PointLight")
-        glowLight.Brightness = 2
-        glowLight.Range = 15
-        glowLight.Color = Color3.fromRGB(0, 255, 0)  -- Bright green glow
-        glowLight.Name = "ConeGlow"
-        glowLight.Parent = character.HumanoidRootPart
-    else
-        debugPrint("Removing glow.")
-        if glowLight then
-            glowLight:Destroy()
-            glowLight = nil
+        if success and tool then
+            -- Find the actual Tool instance inside the model
+            local foundTool = tool:FindFirstChildOfClass("Tool")
+            if foundTool then
+                insertedTool = foundTool
+                insertedTool.Parent = player.Backpack
+                debugPrint("Tool inserted.")
+                hasTool = true
+            else
+                debugPrint("No Tool found in inserted model.")
+                tool:Destroy()
+            end
+        else
+            debugPrint("Failed to insert tool.")
         end
+    else
+        debugPrint("Removing tool...")
+        if insertedTool and insertedTool.Parent then
+            insertedTool:Destroy()
+        end
+        insertedTool = nil
+        hasTool = false
     end
-
-    isGlowing = not isGlowing
 end
+
 
 -- Toggle the menu visibility when the main button is clicked
 button.MouseButton1Click:Connect(function()
@@ -386,7 +399,7 @@ button.MouseButton1Click:Connect(function()
         createButton(10, "Toggle Invisible Parts", toggleInvisibleParts)
 
 	-- Create the "Glow" button
-	createButton(11, "Glow", toggleGlow)
+	createButton(11, "Give lantern", toggleGlow)
 
 
 
