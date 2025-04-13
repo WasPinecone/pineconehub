@@ -12,6 +12,7 @@ debugPrint("Player and PlayerGui loaded.")
 -- Create the GUI screen
 local screenGui = Instance.new("ScreenGui")
 screenGui.Parent = playerGui
+screenGui.ResetOnSpawn = false 
 debugPrint("ScreenGui created.")
 
 -- Create the main button (square)
