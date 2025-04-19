@@ -376,29 +376,47 @@ local function toggleAntiAFK()
     isAntiAFKEnabled = not isAntiAFKEnabled
 end
 
-local function teleportToCursor()
+local isTPCursorEnabled = false
+local mouseClickConnection = nil
+
+local function toggleTeleportToCursor()
 	debugPrint("TP to Cursor button clicked.")
 
-	local mouse = player:GetMouse()
-	local unitRay = workspace.CurrentCamera:ScreenPointToRay(mouse.X, mouse.Y)
+	if not isTPCursorEnabled then
+		debugPrint("Enabling TP to Cursor mode.")
 
-	local raycastParams = RaycastParams.new()
-	raycastParams.FilterDescendantsInstances = {player.Character}
-	raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+		local mouse = player:GetMouse()
 
-	local result = workspace:Raycast(unitRay.Origin, unitRay.Direction * 1000, raycastParams)
+		mouseClickConnection = mouse.Button1Down:Connect(function()
+			local unitRay = workspace.CurrentCamera:ScreenPointToRay(mouse.X, mouse.Y)
+			local raycastParams = RaycastParams.new()
+			raycastParams.FilterDescendantsInstances = {player.Character}
+			raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
 
-	if result then
-		local character = player.Character
-		local hrp = character and character:FindFirstChild("HumanoidRootPart")
+			local result = workspace:Raycast(unitRay.Origin, unitRay.Direction * 1000, raycastParams)
 
-		if hrp then
-			debugPrint("Teleporting to:", result.Position)
-			hrp.CFrame = CFrame.new(result.Position + Vector3.new(0, 5, 0)) -- small lift to prevent fall-through
-		end
+			if result then
+				local character = player.Character
+				local hrp = character and character:FindFirstChild("HumanoidRootPart")
+
+				if hrp then
+					debugPrint("Teleporting to:", result.Position)
+					hrp.CFrame = CFrame.new(result.Position + Vector3.new(0, 5, 0))
+				end
+			else
+				debugPrint("No valid target found.")
+			end
+		end)
 	else
-		debugPrint("No valid target found.")
+		debugPrint("Disabling TP to Cursor mode.")
+
+		if mouseClickConnection then
+			mouseClickConnection:Disconnect()
+			mouseClickConnection = nil
+		end
 	end
+
+	isTPCursorEnabled = not isTPCursorEnabled
 end
 
 
