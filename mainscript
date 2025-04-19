@@ -376,6 +376,32 @@ local function toggleAntiAFK()
     isAntiAFKEnabled = not isAntiAFKEnabled
 end
 
+local function teleportToCursor()
+	debugPrint("TP to Cursor button clicked.")
+
+	local mouse = player:GetMouse()
+	local unitRay = workspace.CurrentCamera:ScreenPointToRay(mouse.X, mouse.Y)
+
+	local raycastParams = RaycastParams.new()
+	raycastParams.FilterDescendantsInstances = {player.Character}
+	raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+
+	local result = workspace:Raycast(unitRay.Origin, unitRay.Direction * 1000, raycastParams)
+
+	if result then
+		local character = player.Character
+		local hrp = character and character:FindFirstChild("HumanoidRootPart")
+
+		if hrp then
+			debugPrint("Teleporting to:", result.Position)
+			hrp.CFrame = CFrame.new(result.Position + Vector3.new(0, 5, 0)) -- small lift to prevent fall-through
+		end
+	else
+		debugPrint("No valid target found.")
+	end
+end
+
+
 -- Toggle the menu visibility when the main button is clicked
 button.MouseButton1Click:Connect(function()
     debugPrint("Main button clicked.")
@@ -425,6 +451,10 @@ button.MouseButton1Click:Connect(function()
 
 	-- Create the "Anti-AFK" button
 	createButton(12, "Anti-AFK", toggleAntiAFK)
+
+	-- Create the "TP to Cursor" button
+	createButton(13, "TP to Cursor", teleportToCursor)
+
 
     end
 end)
